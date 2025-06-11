@@ -16,8 +16,19 @@ from sentence_transformers import SentenceTransformer
 import json
 from typing import List, Tuple, Dict
 
-from model import get_model
-from train import device
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+try:
+    from src.models.pytorch.model import get_model
+    from src.training.pytorch.train import device
+except ImportError:
+    # Fallback for direct script execution
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'models', 'pytorch'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'training', 'pytorch'))
+    from model import get_model
+    from train import device
 
 
 class EmbeddingRetriever:
@@ -273,7 +284,7 @@ def generate_recommendations_batch(retriever, user_ids, k=10, output_file=None):
     for user_id in tqdm(user_ids):
         try:
             recs = retriever.get_user_recommendations(user_id, k=k)
-            recommendations[user_id] = [
+            recommendations[int(user_id)] = [
                 {'item_id': int(item_id), 'score': float(score)}
                 for item_id, score in recs
             ]
@@ -310,15 +321,15 @@ def main():
     parser.add_argument('--model_type', type=str, default='ncf', 
                         choices=['ncf', 'mf', 'hybrid'], help='Model type')
     parser.add_argument('--model_path', type=str, 
-                        default='output/models/best_checkpoint.pt',
+                        default='experiments/checkpoints/best_checkpoint.pt',
                         help='Path to model checkpoint')
     parser.add_argument('--embedding_dim', type=int, default=128, 
                         help='Embedding dimension')
     parser.add_argument('--use_features', action='store_true', 
                         help='Use content features')
-    parser.add_argument('--data_dir', type=str, default='output/processed/', 
+    parser.add_argument('--data_dir', type=str, default='experiments/processed/', 
                         help='Processed data directory')
-    parser.add_argument('--index_dir', type=str, default='output/embeddings/',
+    parser.add_argument('--index_dir', type=str, default='experiments/embeddings/',
                         help='Directory to save/load FAISS index')
     parser.add_argument('--user_id', type=int, default=None,
                         help='Generate recommendations for specific user')
@@ -326,7 +337,7 @@ def main():
                         help='Number of users to generate recommendations for')
     parser.add_argument('--top_k', type=int, default=10,
                         help='Number of recommendations per user')
-    parser.add_argument('--output_file', type=str, default='output/recommendations.json',
+    parser.add_argument('--output_file', type=str, default='experiments/recommendations.json',
                         help='Output file for recommendations')
     parser.add_argument('--build_index', action='store_true',
                         help='Build new FAISS index')
@@ -357,12 +368,15 @@ def main():
     
     # Load model weights
     if args.model_path.endswith('.pt'):
-        if 'checkpoint' in args.model_path:
-            checkpoint = torch.load(args.model_path, map_location=device)
+        checkpoint = torch.load(args.model_path, map_location=device)
+        if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+            # Loading from training checkpoint
             model.load_state_dict(checkpoint['model_state_dict'])
             print(f"Loaded checkpoint from epoch {checkpoint['epoch']}")
         else:
-            model.load_state_dict(torch.load(args.model_path, map_location=device))
+            # Loading from final model state dict
+            model.load_state_dict(checkpoint)
+            print(f"Loaded model weights from {args.model_path}")
             
     # Create retriever
     if args.use_hybrid:

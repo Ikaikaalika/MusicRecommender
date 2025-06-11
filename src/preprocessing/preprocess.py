@@ -234,7 +234,7 @@ class DataPreprocessor:
 def main():
     parser = argparse.ArgumentParser(description='Preprocess KKBOX music recommendation data')
     parser.add_argument('--input_dir', type=str, default='data/', help='Input data directory')
-    parser.add_argument('--output_dir', type=str, default='output/', help='Output directory')
+    parser.add_argument('--output_dir', type=str, default='experiments/', help='Output directory')
     
     args = parser.parse_args()
     

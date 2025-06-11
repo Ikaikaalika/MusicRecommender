@@ -18,7 +18,16 @@ from tqdm import tqdm
 import time
 from datetime import datetime
 
-from model import get_model
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
+try:
+    from src.models.pytorch.model import get_model
+except ImportError:
+    # Fallback for direct script execution
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'pytorch'))
+    from model import get_model
 
 # Check for M1 Mac MPS support
 if torch.backends.mps.is_available():
@@ -77,8 +86,8 @@ class Trainer:
         optimizer,
         criterion,
         scheduler=None,
-        log_dir='runs',
-        checkpoint_dir='output/models'
+        log_dir='experiments/logs',
+        checkpoint_dir='experiments/checkpoints'
     ):
         self.model = model.to(device)
         self.train_loader = train_loader
@@ -260,7 +269,7 @@ def main():
                         help='Use content features')
     parser.add_argument('--num_workers', type=int, default=4, 
                         help='Number of data loader workers')
-    parser.add_argument('--data_dir', type=str, default='output/processed/', 
+    parser.add_argument('--data_dir', type=str, default='experiments/processed/', 
                         help='Processed data directory')
     
     args = parser.parse_args()
@@ -342,8 +351,8 @@ def main():
     trainer.train(epochs=args.epochs)
     
     # Save final model
-    torch.save(model.state_dict(), os.path.join('output/models', f'{args.model_type}_final.pt'))
-    print(f"Model saved to output/models/{args.model_type}_final.pt")
+    torch.save(model.state_dict(), os.path.join('experiments/checkpoints', f'{args.model_type}_final.pt'))
+    print(f"Model saved to experiments/checkpoints/{args.model_type}_final.pt")
 
 
 if __name__ == '__main__':

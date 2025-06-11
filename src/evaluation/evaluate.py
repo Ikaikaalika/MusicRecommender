@@ -15,8 +15,19 @@ from tqdm import tqdm
 from collections import defaultdict
 import json
 
-from model import get_model
-from train import MusicDataset, device
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+try:
+    from src.models.pytorch.model import get_model
+    from src.training.pytorch.train import MusicDataset, device
+except ImportError:
+    # Fallback for direct script execution
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'models', 'pytorch'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'training', 'pytorch'))
+    from model import get_model
+    from train import MusicDataset, device
 
 
 class Evaluator:
@@ -206,7 +217,7 @@ def main():
     parser.add_argument('--model_type', type=str, default='ncf', 
                         choices=['ncf', 'mf', 'hybrid'], help='Model type')
     parser.add_argument('--model_path', type=str, 
-                        default='output/models/best_checkpoint.pt',
+                        default='experiments/checkpoints/best_checkpoint.pt',
                         help='Path to model checkpoint')
     parser.add_argument('--embedding_dim', type=int, default=128, 
                         help='Embedding dimension')
@@ -214,11 +225,11 @@ def main():
                         help='Batch size')
     parser.add_argument('--use_features', action='store_true', 
                         help='Use content features')
-    parser.add_argument('--data_dir', type=str, default='output/processed/', 
+    parser.add_argument('--data_dir', type=str, default='experiments/processed/', 
                         help='Processed data directory')
     parser.add_argument('--sample_users', type=int, default=None,
                         help='Number of users to sample for evaluation')
-    parser.add_argument('--output_file', type=str, default='output/evaluation_results.json',
+    parser.add_argument('--output_file', type=str, default='experiments/evaluation_results.json',
                         help='Output file for results')
     
     args = parser.parse_args()

@@ -1,7 +1,16 @@
 import mlx.core as mx
-import mlx.nn as nn
+import mlx.optimizers as optim
 import numpy as np
-from model_mlx import get_model
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
+try:
+    from src.models.mlx.model_mlx import get_model
+except ImportError:
+    # Fallback for direct script execution
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'mlx'))
+    from model_mlx import get_model
 
 # Dummy DataLoader using numpy
 def batch_loader(X, y, batch_size=128, shuffle=True):
@@ -27,7 +36,7 @@ y = np.random.randint(0, 2, 10000).astype(np.float32)
 
 model = get_model('ncf', n_users=n_users, n_items=n_items)
 
-optimizer = nn.optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(learning_rate=1e-3)
 
 epochs = 5
 batch_size = 256
@@ -40,14 +49,14 @@ for epoch in range(epochs):
         item_ids = mx.array(item_ids, dtype=mx.int32)
         labels = mx.array(labels, dtype=mx.float32)
 
-        def loss_fn():
+        def loss_fn(model):
             preds = model(user_ids, item_ids)
             return binary_cross_entropy(preds, labels)
         
-        loss, grads = mx.value_and_grad(loss_fn)()
-        optimizer.step(grads)
+        loss, grads = mx.value_and_grad(loss_fn)(model)
+        optimizer.update(model, grads)
         losses.append(float(loss))
     print(f"Epoch {epoch+1}: Loss {np.mean(losses):.4f}")
 
 # Save model
-nn.savez("ncf_mlx.npz", model)
+model.save_weights("ncf_mlx.safetensors")
