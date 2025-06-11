@@ -1,0 +1,82 @@
+{
+  "model_type": "ncf",
+  "metrics": {
+    "mrr": {
+      "mean": 9.8406223442117e-06,
+      "std": 3.350304285429747e-09,
+      "n_users": 24203
+    },
+    "hit_rate@5": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n_users": 24203
+    },
+    "hit_rate@10": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n_users": 24203
+    },
+    "hit_rate@20": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n_users": 24203
+    },
+    "ndcg@5": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n_users": 24203
+    },
+    "ndcg@10": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n_users": 24203
+    },
+    "ndcg@20": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n_users": 24203
+    }
+  },
+  "popularity_bias": {
+    "bucket_0": {
+      "percentage": 82.905033573989,
+      "description": "Items ranked 1-6703"
+    },
+    "bucket_1": {
+      "percentage": 9.335083556318473,
+      "description": "Items ranked 6704-13406"
+    },
+    "bucket_2": {
+      "percentage": 3.1453526531024387,
+      "description": "Items ranked 13407-20109"
+    },
+    "bucket_3": {
+      "percentage": 1.5398596455798454,
+      "description": "Items ranked 20110-26812"
+    },
+    "bucket_4": {
+      "percentage": 0.9037209067501389,
+      "description": "Items ranked 26813-33515"
+    },
+    "bucket_5": {
+      "percentage": 0.47457969404755895,
+      "description": "Items ranked 33516-40218"
+    },
+    "bucket_6": {
+      "percentage": 0.8279901045085071,
+      "description": "Items ranked 40219-46921"
+    },
+    "bucket_7": {
+      "percentage": 0.19690008582824253,
+      "description": "Items ranked 46922-53624"
+    },
+    "bucket_8": {
+      "percentage": 0.2827283283687585,
+      "description": "Items ranked 53625-60327"
+    },
+    "bucket_9": {
+      "percentage": 0.388751451507043,
+      "description": "Items ranked 60328-67030"
+    }
+  }
+}
